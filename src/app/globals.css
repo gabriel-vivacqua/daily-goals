@@ -4,24 +4,50 @@
 
 :root {
   --background: #ffffff;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --foreground: #111111;
 }
 
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
 }
 
 @layer utilities {
   .text-balance {
     text-wrap: balance;
   }
+
+  .micro-label {
+    @apply text-[11px] font-medium uppercase tracking-[0.12em] text-foreground/50;
+  }
+
+  .headline {
+    @apply font-sans font-semibold tracking-tight;
+  }
+}
+
+input[type="checkbox"].check-node {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 9999px;
+  border: 1.5px solid rgba(255, 255, 255, 0.35);
+  background: transparent;
+  cursor: pointer;
+  transition: background-color 120ms ease, border-color 120ms ease, transform 80ms ease;
+}
+
+input[type="checkbox"].check-node:checked {
+  background-color: #ffffff;
+  border-color: #ffffff;
+}
+
+input[type="checkbox"].check-node:active {
+  transform: scale(0.9);
+}
+
+input[type="checkbox"].check-node:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
 }

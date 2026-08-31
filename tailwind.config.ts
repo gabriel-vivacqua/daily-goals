@@ -9,8 +9,17 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        background: "var(--background)",
-        foreground: "var(--foreground)",
+        background: "#FFFFFF",
+        foreground: "#111111",
+        ink: "#111111",
+        line: "rgba(17, 17, 17, 0.1)",
+        "line-dark": "rgba(255, 255, 255, 0.12)",
+      },
+      fontFamily: {
+        sans: ["var(--font-inter)", "ui-sans-serif", "system-ui", "sans-serif"],
+      },
+      borderRadius: {
+        card: "16px",
       },
     },
   },
