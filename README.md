@@ -16,20 +16,30 @@ JWT session cookies (`jose`) · Zod validation.
 1. **Create a Supabase project** (or use an existing one) at
    [supabase.com](https://supabase.com).
 2. In the Supabase dashboard: **Project Settings → Database → Connection
-   string**. Copy the *Transaction pooler* string (port 6543) and the
-   *direct* connection string (port 5432).
+   string**. You need two of the connection strings shown there — the
+   *Transaction* pooler (port 6543) and the *Session* pooler (port 5432).
+   Do **not** use the raw "direct connection" host
+   (`db.<ref>.supabase.co`) for either — it's IPv6-only unless you've
+   bought Supabase's IPv4 add-on, and most local networks and CI/build
+   environments can't reach it.
 3. Copy `.env.example` to `.env` and fill in:
-   - `DATABASE_URL` — the pooler connection string (append
+   - `DATABASE_URL` — the Transaction pooler string (append
      `?pgbouncer=true` if not already present)
-   - `DIRECT_URL` — the direct connection string
+   - `DIRECT_URL` — the Session pooler string
    - `SESSION_SECRET` — a random secret:
      `node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"`
    - `INVITE_CODE` — a shared code required to sign up:
      `node -e "console.log(require('crypto').randomBytes(9).toString('base64url'))"`
+
+   If your database password contains characters like `@ : / ? #` or
+   non-ASCII letters, URL-encode it first (`node -e
+   "console.log(encodeURIComponent(process.argv[1]))" 'your-password'`) —
+   an unescaped `@` in particular breaks the connection string, since `@`
+   is what separates credentials from the host.
 4. Install dependencies and apply the schema:
    ```bash
    npm install
-   npx prisma migrate deploy
+   npm run db:migrate
    ```
 5. Run the dev server:
    ```bash
@@ -43,25 +53,37 @@ JWT session cookies (`jose`) · Zod validation.
 - `npx prisma studio` — browse/edit data in a GUI
 - `npx prisma migrate dev --name <change>` — create a new migration after
   editing `prisma/schema.prisma` (requires a reachable dev database)
-- `npx prisma migrate deploy` — apply pending migrations without prompting
-  (what production uses)
+- `npm run db:migrate` — apply pending migrations without prompting (what
+  production uses)
 
 ---
 
-## Deploying (Vercel + Supabase)
+## Deploying (Netlify or Vercel + Supabase)
+
+The app is host-agnostic Next.js — these steps work the same on Netlify
+or Vercel, just adjust which dashboard you're in.
 
 1. Push this repo to GitHub and import it into
-   [Vercel](https://vercel.com/new).
-2. In the Vercel project's **Settings → Environment Variables**, add for
-   the Production (and Preview, if used) environment:
-   - `DATABASE_URL`
-   - `DIRECT_URL`
+   [Netlify](https://app.netlify.com/start) or
+   [Vercel](https://vercel.com/new). Build settings are auto-detected
+   (build command `npm run build`, publish directory `.next`) — leave
+   them as-is.
+2. In the site's environment variables settings, add:
+   - `DATABASE_URL` — the Transaction pooler string
+   - `DIRECT_URL` — the Session pooler string
    - `SESSION_SECRET` — a **different** value than your local one
    - `INVITE_CODE` — share this only with people you want to invite
-3. Deploy. The build runs `prisma migrate deploy` automatically (see
-   `package.json`'s `build` script) before `next build`, so pending
-   migrations are applied on every deploy.
-4. First deploy will have no users — sign up with the invite code once the
+3. Deploy. The build only runs `next build` — it does **not** touch the
+   database, so a build can never fail because Supabase happened to be
+   unreachable from the build server.
+4. Apply pending migrations as an explicit, separate step, from anywhere
+   that can reach the database (your machine, a CI job, etc.):
+   ```bash
+   npm run db:migrate
+   ```
+   Do this once before the first deploy, and again after any deploy that
+   includes a schema change (i.e. a new folder under `prisma/migrations`).
+5. First deploy will have no users — sign up with the invite code once the
    site is live to create the first account.
 
 ### Notes
@@ -114,6 +136,7 @@ JWT session cookies (`jose`) · Zod validation.
 | Command | Purpose |
 |---|---|
 | `npm run dev` | Start the dev server |
-| `npm run build` | Apply pending migrations, then build for production |
+| `npm run build` | Build for production (doesn't touch the database) |
+| `npm run db:migrate` | Apply pending Prisma migrations |
 | `npm start` | Start the production server (after `build`) |
 | `npm run lint` | Run ESLint |

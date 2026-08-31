@@ -13,9 +13,15 @@ datasource db {
   // app at runtime — serverless functions open/close connections constantly
   // and need pgbouncer in front of Postgres to avoid exhausting connections.
   url       = env("DATABASE_URL")
-  // Direct, unpooled connection (port 5432) used only for migrations —
-  // `prisma migrate` needs session-level features (advisory locks) that the
-  // transaction pooler doesn't support.
+  // Session-mode pooler connection (port 5432, same pooler host as above)
+  // used only for migrations — `prisma migrate` needs session-level
+  // features (advisory locks) that the transaction pooler doesn't support.
+  // Deliberately NOT Supabase's raw direct-connection host
+  // (db.<ref>.supabase.co): that host is IPv6-only unless the project has
+  // Supabase's paid IPv4 add-on, and most CI/build environments (Netlify,
+  // Vercel, GitHub Actions) only have IPv4 egress — migrations would fail
+  // to even reach the database there. The session pooler gives the same
+  // session-level guarantees over an IPv4-reachable host.
   directUrl = env("DIRECT_URL")
 }
 
