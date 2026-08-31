@@ -3,8 +3,9 @@ import { prisma } from "@/lib/db";
 import { hashPassword, signSessionToken, SESSION_COOKIE } from "@/lib/auth";
 import { signupSchema } from "@/lib/validation";
 import { clientIp, rateLimit } from "@/lib/rateLimit";
+import { withErrorHandling } from "@/lib/apiRoute";
 
-export async function POST(req: NextRequest) {
+export const POST = withErrorHandling(async (req: NextRequest) => {
   const { ok, retryAfterSeconds } = rateLimit(`signup:${clientIp(req)}`, {
     limit: 5,
     windowMs: 10 * 60 * 1000,
@@ -57,4 +58,4 @@ export async function POST(req: NextRequest) {
     maxAge: 60 * 60 * 24 * 30,
   });
   return res;
-}
+});

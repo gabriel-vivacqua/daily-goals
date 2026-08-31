@@ -3,9 +3,10 @@ import { prisma } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
 import { createGoalSchema } from "@/lib/validation";
 import { rateLimit } from "@/lib/rateLimit";
+import { withErrorHandling } from "@/lib/apiRoute";
 
 /** Lists the current user's own goal templates (for management, not a specific date). */
-export async function GET() {
+export const GET = withErrorHandling(async () => {
   const user = await getCurrentUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
@@ -14,9 +15,9 @@ export async function GET() {
     orderBy: { createdAt: "asc" },
   });
   return NextResponse.json({ goals });
-}
+});
 
-export async function POST(req: NextRequest) {
+export const POST = withErrorHandling(async (req: NextRequest) => {
   const user = await getCurrentUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
@@ -56,4 +57,4 @@ export async function POST(req: NextRequest) {
     },
   });
   return NextResponse.json({ goal }, { status: 201 });
-}
+});

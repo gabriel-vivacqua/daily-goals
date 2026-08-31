@@ -3,8 +3,9 @@ import { prisma } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
 import { isGoalActiveOnDate, todayStr } from "@/lib/dates";
 import { buildCompletionMap, computeDayScore } from "@/lib/scoring";
+import { withErrorHandling } from "@/lib/apiRoute";
 
-export async function GET() {
+export const GET = withErrorHandling(async () => {
   const viewer = await getCurrentUser();
   if (!viewer) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
@@ -41,4 +42,4 @@ export async function GET() {
   });
 
   return NextResponse.json({ today, people });
-}
+});

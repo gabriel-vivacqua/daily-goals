@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
 import { updateGoalSchema } from "@/lib/validation";
+import { withErrorHandling } from "@/lib/apiRoute";
 
 async function loadOwnedGoal(userId: string, id: string) {
   const goal = await prisma.goal.findUnique({ where: { id } });
@@ -9,7 +10,7 @@ async function loadOwnedGoal(userId: string, id: string) {
   return goal;
 }
 
-export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export const PATCH = withErrorHandling(async (req: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
   const user = await getCurrentUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
@@ -44,9 +45,9 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     },
   });
   return NextResponse.json({ goal });
-}
+});
 
-export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export const DELETE = withErrorHandling(async (_req: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
   const user = await getCurrentUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
@@ -56,4 +57,4 @@ export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ 
 
   await prisma.goal.delete({ where: { id: existing.id } });
   return NextResponse.json({ ok: true });
-}
+});

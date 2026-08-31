@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getCurrentUser, signSessionToken, SESSION_COOKIE } from "@/lib/auth";
+import { withErrorHandling } from "@/lib/apiRoute";
 
 /**
  * Invalidates every session token issued for this user — including the
@@ -9,7 +10,7 @@ import { getCurrentUser, signSessionToken, SESSION_COOKIE } from "@/lib/auth";
  * re-issued a fresh token at the new version so it stays logged in; every
  * other device's cookie stops working on its next request.
  */
-export async function POST() {
+export const POST = withErrorHandling(async () => {
   const user = await getCurrentUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
@@ -29,4 +30,4 @@ export async function POST() {
     maxAge: 60 * 60 * 24 * 30,
   });
   return res;
-}
+});
