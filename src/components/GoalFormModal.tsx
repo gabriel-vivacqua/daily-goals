@@ -2,6 +2,7 @@
 
 import { useState, FormEvent } from "react";
 import type { GoalTemplate, Recurrence } from "@/lib/types";
+import { CATEGORY_EMOJI_CHOICES, splitCategoryEmoji } from "@/lib/categoryEmoji";
 
 export type GoalFormValues = {
   title: string;
@@ -47,9 +48,16 @@ export default function GoalFormModal({
   const [values, setValues] = useState<GoalFormValues>(() => toFormValues(goal));
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
   function update<K extends keyof GoalFormValues>(key: K, value: GoalFormValues[K]) {
     setValues((prev) => ({ ...prev, [key]: value }));
+  }
+
+  function selectEmoji(emoji: string) {
+    const { text } = splitCategoryEmoji(values.category);
+    update("category", text ? `${emoji} ${text}` : emoji);
+    setShowEmojiPicker(false);
   }
 
   function toggleCustomDay(day: number) {
@@ -126,16 +134,44 @@ export default function GoalFormModal({
             </div>
           </div>
 
-          <div>
+          <div className="relative">
             <label className="micro-label mb-1.5 block">Category</label>
-            <input
-              type="text"
-              maxLength={60}
-              value={values.category}
-              onChange={(e) => update("category", e.target.value)}
-              className={INPUT_CLASS}
-              placeholder="Optional"
-            />
+            <div className="flex gap-2">
+              <input
+                type="text"
+                maxLength={60}
+                value={values.category}
+                onChange={(e) => update("category", e.target.value)}
+                className={INPUT_CLASS}
+                placeholder="Optional"
+              />
+              <button
+                type="button"
+                onClick={() => setShowEmojiPicker((prev) => !prev)}
+                aria-label="Pick an emoji for this category"
+                className="shrink-0 rounded-xl border border-line px-3 text-lg hover:border-foreground/30"
+              >
+                {splitCategoryEmoji(values.category).emoji ?? "🙂"}
+              </button>
+            </div>
+
+            {showEmojiPicker && (
+              <>
+                <div className="fixed inset-0 z-10" onClick={() => setShowEmojiPicker(false)} />
+                <div className="absolute right-0 top-full z-20 mt-1 grid w-56 grid-cols-6 gap-1 rounded-xl border border-line bg-background p-2 shadow-xl">
+                  {CATEGORY_EMOJI_CHOICES.map((emoji) => (
+                    <button
+                      type="button"
+                      key={emoji}
+                      onClick={() => selectEmoji(emoji)}
+                      className="rounded-lg p-1.5 text-lg hover:bg-foreground/10"
+                    >
+                      {emoji}
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
           </div>
 
           <div>
