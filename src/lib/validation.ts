@@ -1,6 +1,7 @@
 import { z } from "zod";
+import { todayStr } from "@/lib/dates";
 
-export const recurrences = ["DAILY", "WEEKDAYS", "CUSTOM"] as const;
+export const recurrences = ["DAILY", "WEEKDAYS", "CUSTOM", "ONCE"] as const;
 
 const baseGoalSchema = z.object({
   title: z.string().trim().min(1, "Title is required").max(120),
@@ -8,6 +9,10 @@ const baseGoalSchema = z.object({
   count: z.coerce.number().int().min(1).max(100).default(1),
   recurrence: z.enum(recurrences),
   customDays: z.array(z.number().int().min(0).max(6)).optional(),
+  onceDate: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date")
+    .optional(),
   category: z.string().trim().max(60).optional().nullable(),
 });
 
@@ -18,6 +23,21 @@ export const createGoalSchema = baseGoalSchema.superRefine((val, ctx) => {
       message: "Select at least one day for a custom recurrence",
       path: ["customDays"],
     });
+  }
+  if (val.recurrence === "ONCE") {
+    if (!val.onceDate) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Pick a date for a one-time goal",
+        path: ["onceDate"],
+      });
+    } else if (val.onceDate < todayStr()) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Pick today or a future date for a one-time goal",
+        path: ["onceDate"],
+      });
+    }
   }
 });
 
@@ -44,4 +64,15 @@ export const toggleSchema = z.object({
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date"),
   subIndex: z.coerce.number().int().min(0),
   completed: z.boolean(),
+});
+
+// The client resizes/compresses the image before sending, so a legitimate
+// upload should be well under this — the cap here is a server-side backstop
+// against a request built by hand rather than the actual upload flow.
+export const updateProfileSchema = z.object({
+  avatarUrl: z
+    .string()
+    .max(300_000, "Image is too large")
+    .regex(/^data:image\/(png|jpeg|jpg|webp);base64,/, "Invalid image data")
+    .nullable(),
 });

@@ -43,7 +43,7 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
       { status: 400 }
     );
   }
-  const { title, points, count, recurrence, customDays, category } = parsed.data;
+  const { title, points, count, recurrence, customDays, onceDate, category } = parsed.data;
 
   const goal = await prisma.goal.create({
     data: {
@@ -53,6 +53,7 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
       count,
       recurrence,
       customDays: recurrence === "CUSTOM" ? JSON.stringify(customDays ?? []) : null,
+      onceDate: recurrence === "ONCE" ? onceDate : null,
       category: category || null,
     },
   });

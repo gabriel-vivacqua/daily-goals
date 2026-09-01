@@ -1,4 +1,4 @@
-export type Recurrence = "DAILY" | "WEEKDAYS" | "CUSTOM";
+export type Recurrence = "DAILY" | "WEEKDAYS" | "CUSTOM" | "ONCE";
 
 /** A goal's daily instance, as returned by GET /api/day */
 export type DayGoal = {
@@ -21,6 +21,7 @@ export type GoalTemplate = {
   count: number;
   recurrence: Recurrence;
   customDays: string | null;
+  onceDate: string | null;
   category: string | null;
   active: boolean;
   createdAt: string;
@@ -34,7 +35,7 @@ export type DayScore = {
 
 export type DayResponse = {
   date: string;
-  user: { id: string; name: string; email: string };
+  user: { id: string; name: string; email: string; avatarUrl: string | null };
   isOwner: boolean;
   isToday: boolean;
   goals: DayGoal[];

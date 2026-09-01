@@ -37,6 +37,7 @@ export type PublicUser = {
   id: string;
   name: string;
   email: string;
+  avatarUrl: string | null;
   createdAt: Date;
 };
 
@@ -44,6 +45,7 @@ const PUBLIC_USER_SELECT = {
   id: true,
   name: true,
   email: true,
+  avatarUrl: true,
   createdAt: true,
 } as const;
 
@@ -70,5 +72,11 @@ export async function getCurrentUser(): Promise<PublicUser | null> {
   });
   if (!user || user.tokenVersion !== session.tokenVersion) return null;
 
-  return { id: user.id, name: user.name, email: user.email, createdAt: user.createdAt };
+  return {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    avatarUrl: user.avatarUrl,
+    createdAt: user.createdAt,
+  };
 }

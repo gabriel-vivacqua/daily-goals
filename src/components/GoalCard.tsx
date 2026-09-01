@@ -7,6 +7,7 @@ const RECURRENCE_LABEL: Record<string, string> = {
   DAILY: "Daily",
   WEEKDAYS: "Weekdays",
   CUSTOM: "Custom days",
+  ONCE: "One-time",
 };
 
 export default function GoalCard({

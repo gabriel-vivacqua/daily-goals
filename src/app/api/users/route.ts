@@ -11,7 +11,7 @@ export const GET = withErrorHandling(async () => {
 
   const today = todayStr();
   const users = await prisma.user.findMany({
-    select: { id: true, name: true, email: true, createdAt: true },
+    select: { id: true, name: true, email: true, avatarUrl: true, createdAt: true },
     orderBy: { createdAt: "asc" },
   });
 
@@ -35,6 +35,7 @@ export const GET = withErrorHandling(async () => {
       id: u.id,
       name: u.name,
       email: u.email,
+      avatarUrl: u.avatarUrl,
       isSelf: u.id === viewer.id,
       goalCount: activeToday.length,
       score,

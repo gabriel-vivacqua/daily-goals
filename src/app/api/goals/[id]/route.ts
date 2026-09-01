@@ -42,6 +42,7 @@ export const PATCH = withErrorHandling(async (req: NextRequest, { params }: { pa
         recurrence === "CUSTOM"
           ? JSON.stringify(data.customDays ?? existing.customDays ?? [])
           : null,
+      onceDate: recurrence === "ONCE" ? data.onceDate ?? existing.onceDate : null,
     },
   });
   return NextResponse.json({ goal });

@@ -52,10 +52,15 @@ export function weekdayOf(dateStr: string): number {
   return parseDate(dateStr).getDay();
 }
 
-export type Recurrence = "DAILY" | "WEEKDAYS" | "CUSTOM";
+export type Recurrence = "DAILY" | "WEEKDAYS" | "CUSTOM" | "ONCE";
 
 export function isGoalActiveOnDate(
-  goal: { recurrence: string; customDays: string | null; createdAt: Date },
+  goal: {
+    recurrence: string;
+    customDays: string | null;
+    onceDate: string | null;
+    createdAt: Date;
+  },
   dateStr: string
 ): boolean {
   const created = formatDate(goal.createdAt);
@@ -74,6 +79,8 @@ export function isGoalActiveOnDate(
         return false;
       }
     }
+    case "ONCE":
+      return goal.onceDate === dateStr;
     case "DAILY":
     default:
       return true;

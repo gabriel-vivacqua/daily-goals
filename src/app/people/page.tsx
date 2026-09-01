@@ -10,6 +10,7 @@ type Person = {
   id: string;
   name: string;
   email: string;
+  avatarUrl: string | null;
   isSelf: boolean;
   goalCount: number;
   score: { pointsEarned: number; pointsPossible: number; grade: number | null };
@@ -44,7 +45,7 @@ export default function PeoplePage() {
               className="group flex flex-col gap-4 rounded-card border border-line-dark bg-ink p-5 text-white transition-transform hover:-translate-y-0.5"
             >
               <div className="flex items-center gap-3">
-                <Avatar name={person.name} />
+                <Avatar name={person.name} src={person.avatarUrl} />
                 <div className="min-w-0">
                   <p className="truncate font-semibold">
                     {person.name}

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import type { PublicUser } from "@/lib/auth";
+import AvatarUpload from "@/components/AvatarUpload";
 
 const LINKS = [
   { href: "/goals", label: "Today's Goals" },
@@ -20,6 +21,7 @@ export default function Nav({ user }: { user: PublicUser }) {
   const router = useRouter();
   const [loggingOut, setLoggingOut] = useState(false);
   const [loggingOutAll, setLoggingOutAll] = useState(false);
+  const [avatarUrl, setAvatarUrl] = useState(user.avatarUrl);
 
   async function handleLogout() {
     setLoggingOut(true);
@@ -66,6 +68,13 @@ export default function Nav({ user }: { user: PublicUser }) {
           </nav>
 
           <div className="flex items-center gap-3">
+            <AvatarUpload
+              name={user.name}
+              avatarUrl={avatarUrl}
+              tone="dark"
+              size={30}
+              onUpdated={setAvatarUrl}
+            />
             <span className="hidden micro-label sm:inline">{user.name}</span>
             <button
               onClick={handleLogoutAll}

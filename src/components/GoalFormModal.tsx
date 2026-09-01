@@ -3,6 +3,7 @@
 import { useState, FormEvent } from "react";
 import type { GoalTemplate, Recurrence } from "@/lib/types";
 import { CATEGORY_EMOJI_CHOICES, splitCategoryEmoji } from "@/lib/categoryEmoji";
+import { todayStr } from "@/lib/dates";
 
 export type GoalFormValues = {
   title: string;
@@ -10,10 +11,12 @@ export type GoalFormValues = {
   count: number;
   recurrence: Recurrence;
   customDays: number[];
+  onceDate: string;
   category: string;
 };
 
 const DAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const RECURRENCES: Recurrence[] = ["DAILY", "WEEKDAYS", "CUSTOM", "ONCE"];
 
 function toFormValues(goal?: GoalTemplate | null): GoalFormValues {
   if (!goal) {
@@ -23,6 +26,7 @@ function toFormValues(goal?: GoalTemplate | null): GoalFormValues {
       count: 1,
       recurrence: "DAILY",
       customDays: [],
+      onceDate: todayStr(),
       category: "",
     };
   }
@@ -32,6 +36,7 @@ function toFormValues(goal?: GoalTemplate | null): GoalFormValues {
     count: goal.count,
     recurrence: goal.recurrence,
     customDays: goal.customDays ? JSON.parse(goal.customDays) : [],
+    onceDate: goal.onceDate ?? todayStr(),
     category: goal.category ?? "",
   };
 }
@@ -177,7 +182,7 @@ export default function GoalFormModal({
           <div>
             <label className="micro-label mb-1.5 block">Recurrence</label>
             <div className="flex gap-2">
-              {(["DAILY", "WEEKDAYS", "CUSTOM"] as Recurrence[]).map((r) => (
+              {RECURRENCES.map((r) => (
                 <button
                   type="button"
                   key={r}
@@ -210,6 +215,20 @@ export default function GoalFormModal({
                   {label}
                 </button>
               ))}
+            </div>
+          )}
+
+          {values.recurrence === "ONCE" && (
+            <div>
+              <label className="micro-label mb-1.5 block">Date</label>
+              <input
+                type="date"
+                required
+                min={todayStr()}
+                value={values.onceDate}
+                onChange={(e) => update("onceDate", e.target.value)}
+                className={INPUT_CLASS}
+              />
             </div>
           )}
 
