@@ -34,6 +34,6 @@ export const config = {
      * - _next static/image
      * - favicon and other static files
      */
-    "/((?!api|_next/static|_next/image|favicon.ico).*)",
+    "/((?!api|_next/static|_next/image|favicon.ico|gymgame-icon.png).*)",
   ],
 };

@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { getCurrentUser } from "@/lib/auth";
 import Nav from "@/components/Nav";
+import SponsoredBanner from "@/components/SponsoredBanner";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -29,6 +30,7 @@ export default async function RootLayout({
         {user ? <Nav user={user} /> : null}
         <main className={user ? "mx-auto max-w-6xl px-4 pb-20 pt-6 sm:px-6 sm:pt-10" : ""}>
           {children}
+          {user ? <SponsoredBanner /> : null}
         </main>
       </body>
     </html>
